@@ -12,7 +12,7 @@ namespace JSLoader
     {
         public string Name => "JavaScript加载器";
 
-        public string Version => "1.2.1";
+        public string Version => "1.2.2";
 
         public string Author => "XTools开发组";
 
@@ -33,7 +33,7 @@ namespace JSLoader
             {
                 xTools.ToolBrowser.AddressChanged += (s, e) =>
                 {
-                    xTools.ToolBrowser.ExecuteScriptAsync(File.ReadAllText(script));
+                    xTools.ToolBrowser.ExecuteScriptAsyncWhenPageLoaded(File.ReadAllText(script));
                 };
                 ToolStripMenuItem jsScript = new ToolStripMenuItem();
                 jsScript.Name = script;
@@ -45,7 +45,7 @@ namespace JSLoader
                 scriptInfo.Click += new EventHandler((s, e) =>
                 {
                     MessageBox.Show(
-                         $"脚本注册名：{script.Split('\\')[1]}\n" +
+                         $"脚本注册名：{script.Split('\\')[1].Replace(".js", "")}\n" +
                          $"脚本名称：{jsScript.Text}\n" +
                          $"脚本版本：v{Regex.Match(File.ReadAllText(script), "@version\\s+(.*)").Value.Replace("@version ", "")}\n" +
                          $"脚本作者：{Regex.Match(File.ReadAllText(script), "@author\\s+(.*)").Value.Replace("@author ", "")}\n" +
