@@ -68,7 +68,7 @@ namespace XTools
                 {
                     ToolStripMenuItem disabledPlugin = new ToolStripMenuItem();
                     disabledPlugin.Name = disabledPluginFile;
-                    disabledPlugin.Text = disabledPluginFile.Split('\\')[1].Replace(".disabled", "");
+                    disabledPlugin.Text = disabledPluginFile.Split('\\')[1].Replace(".disabled", "") + "（已禁用）";
                     ToolStripMenuItem enablePlugin = new ToolStripMenuItem();
                     enablePlugin.Name = disabledPluginFile;
                     enablePlugin.Text = "启用此插件";
