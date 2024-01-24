@@ -70,7 +70,7 @@ namespace JSLoader
             {
                 ToolStripMenuItem disabledScript = new ToolStripMenuItem();
                 disabledScript.Name = disabledJsScript;
-                disabledScript.Text = disabledJsScript.Split('\\')[1].Replace(".disabled", "");
+                disabledScript.Text = disabledJsScript.Split('\\')[1].Replace(".disabled", "") + "（已禁用）";
                 ToolStripMenuItem enablePlugin = new ToolStripMenuItem();
                 enablePlugin.Name = disabledJsScript;
                 enablePlugin.Text = "启用此脚本";
