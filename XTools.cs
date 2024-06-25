@@ -4,23 +4,20 @@ using System.Windows.Forms;
 using CefSharp;
 using System.IO;
 using CefSharp.WinForms;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 
 namespace XTools
 {
     public partial class XTools : Form
     {
-        public IRequestHandler requestHandler;
+        public ILifeSpanHandler lifeSpanHandler;
         public string Title;
 
         public XTools()
         {
             InitializeComponent();
             ReloadToolsToolStripMenuItem.Visible = false;
-            // ToolBrowser.RequestHandler = new RequestHandler();
-            requestHandler = new RequestHandler(this);
-            ToolBrowser.RequestHandler = requestHandler;
+            lifeSpanHandler = new LifeSpanHandler(this);
+            ToolBrowser.LifeSpanHandler = lifeSpanHandler;
             LoadTools();
             ToolBrowser.LoadUrl("file:///index.html");
         }
@@ -40,7 +37,13 @@ namespace XTools
                     function.Click += new EventHandler((s, e) =>
                     {
                         string[] split = tool.Split('\\');
-                        ToolBrowser.LoadUrl("file:///tools/" + split[split.Length - 2] + "/" + split[split.Length - 1]);
+                        foreach (var control in ToolsViewer.SelectedTab.Controls)
+                        {
+                            if (control is ChromiumWebBrowser browser)
+                            {
+                                browser.LoadUrl("file:///tools/" + split[split.Length - 2] + "/" + split[split.Length - 1]);
+                            }
+                        }
                     });
                     ChooseToolToolStripMenuItem.DropDownItems.Add(function);
                 }
@@ -53,14 +56,20 @@ namespace XTools
             {
                 if (control is ChromiumWebBrowser browser)
                 {
-                    browser.Refresh();
+                    browser.Reload();
                 }
             }
         }
 
         private void HomePageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ToolsViewer.SelectTab(0);
+            foreach (var control in ToolsViewer.SelectedTab.Controls)
+            {
+                if (control is ChromiumWebBrowser browser)
+                {
+                    browser.LoadUrl("file:///index.html");
+                }
+            }
         }
 
         private void ReloadToolsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -79,7 +88,7 @@ namespace XTools
         {
             if (ToolsViewer.SelectedIndex == 0)
             {
-                MessageBox.Show("请不要关闭主页", "XTools", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("这是置顶标签页，请不要关闭", "XTools", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             ToolsViewer.TabPages.Remove(ToolsViewer.SelectedTab);
@@ -97,36 +106,40 @@ namespace XTools
         }
     }
 
-    public class RequestHandler : IRequestHandler
+    public class LifeSpanHandler : ILifeSpanHandler
     {
         public XTools xTools;
-        public Thread thread;
         public bool isInternalNavigation = false;
 
-        public RequestHandler(XTools xTools) 
+        public LifeSpanHandler(XTools xTools)
         {
             this.xTools = xTools;
         }
 
-        public bool GetAuthCredentials(IWebBrowser chromiumWebBrowser, IBrowser browser, string originUrl, bool isProxy, string host, int port, string realm, string scheme, IAuthCallback callback)
+        public bool DoClose(IWebBrowser chromiumWebBrowser, IBrowser browser)
         {
-            return true;
+            return false;
         }
 
-        public IResourceRequestHandler GetResourceRequestHandler(IWebBrowser chromiumWebBrowser, IBrowser browser, IFrame frame, IRequest request, bool isNavigation, bool isDownload, string requestInitiator, ref bool disableDefaultHandling)
+        public void OnAfterCreated(IWebBrowser chromiumWebBrowser, IBrowser browser)
         {
-            return null;
+            return;
         }
 
-        public bool OnBeforeBrowse(IWebBrowser chromiumWebBrowser, IBrowser browser, IFrame frame, IRequest request, bool userGesture, bool isRedirect)
+        public void OnBeforeClose(IWebBrowser chromiumWebBrowser, IBrowser browser)
         {
-            if (request.Url == "file:///index.html" || isInternalNavigation)
+            return;
+        }
+
+        public bool OnBeforePopup(IWebBrowser chromiumWebBrowser, IBrowser browser, IFrame frame, string targetUrl, string targetFrameName, WindowOpenDisposition targetDisposition, bool userGesture, IPopupFeatures popupFeatures, IWindowInfo windowInfo, IBrowserSettings browserSettings, ref bool noJavascriptAccess, out IWebBrowser newBrowser)
+        {
+            newBrowser = null;
+            if (isInternalNavigation)
             {
                 return false;
             }
-            browser = null;
             isInternalNavigation = true;
-            TabPage tabPage = new TabPage(request.Url);
+            TabPage tabPage = new TabPage(targetUrl);
             ChromiumWebBrowser NewTool = new ChromiumWebBrowser();
             NewTool.ActivateBrowserOnCreation = false;
             NewTool.Dock = DockStyle.Fill;
@@ -136,7 +149,7 @@ namespace XTools
             NewTool.Name = "ToolBrowser";
             NewTool.Size = new System.Drawing.Size(1253, 596);
             NewTool.TabIndex = 0;
-            NewTool.RequestHandler = this;
+            NewTool.LifeSpanHandler = this;
             NewTool.TitleChanged += new EventHandler<TitleChangedEventArgs>(xTools.ToolBrowser_TitleChanged);
             NewTool.FrameLoadEnd += new EventHandler<FrameLoadEndEventArgs>(xTools.ToolBrowser_FrameLoadEnd);
             NewTool.FrameLoadEnd += (sender, e) =>
@@ -146,48 +159,14 @@ namespace XTools
                     isInternalNavigation = false;
                 }
             };
-            NewTool.LoadUrl(request.Url);
+            NewTool.LoadUrl(targetUrl);
+            // xTools.ToolBrowser.LoadUrl(targetUrl);
             tabPage.Controls.Add(NewTool);
             xTools.Invoke(new MethodInvoker(delegate
             {
                 xTools.ToolsViewer.Controls.Add(tabPage);
                 xTools.ToolsViewer.SelectedIndex = xTools.ToolsViewer.TabPages.Count - 1;
             }));
-            return true;
-        }
-
-        public bool OnCertificateError(IWebBrowser chromiumWebBrowser, IBrowser browser, CefErrorCode errorCode, string requestUrl, ISslInfo sslInfo, IRequestCallback callback)
-        {
-            return false;
-        }
-
-        public void OnDocumentAvailableInMainFrame(IWebBrowser chromiumWebBrowser, IBrowser browser)
-        {
-            
-        }
-
-        public bool OnOpenUrlFromTab(IWebBrowser chromiumWebBrowser, IBrowser browser, IFrame frame, string targetUrl, WindowOpenDisposition targetDisposition, bool userGesture)
-        {
-            return false;
-        }
-
-        public bool OnQuotaRequest(IWebBrowser chromiumWebBrowser, IBrowser browser, string originUrl, long newSize, IRequestCallback callback)
-        {
-            return false;
-        }
-
-        public void OnRenderProcessTerminated(IWebBrowser chromiumWebBrowser, IBrowser browser, CefTerminationStatus status)
-        {
-            
-        }
-
-        public void OnRenderViewReady(IWebBrowser chromiumWebBrowser, IBrowser browser)
-        {
-            
-        }
-
-        public bool OnSelectClientCertificate(IWebBrowser chromiumWebBrowser, IBrowser browser, bool isProxy, string host, int port, X509Certificate2Collection certificates, ISelectClientCertificateCallback callback)
-        {
             return true;
         }
     }
