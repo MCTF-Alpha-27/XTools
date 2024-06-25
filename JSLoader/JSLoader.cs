@@ -5,6 +5,7 @@ using CefSharp;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using Microsoft.VisualBasic.Devices;
+using CefSharp.WinForms;
 
 namespace JSLoader
 {
@@ -12,7 +13,7 @@ namespace JSLoader
     {
         public string Name => "JavaScript加载器";
 
-        public string Version => "1.2.2";
+        public string Version => "1.2.4";
 
         public string Author => "XTools开发组";
 
@@ -33,7 +34,28 @@ namespace JSLoader
             {
                 xTools.ToolBrowser.AddressChanged += (s, e) =>
                 {
-                    xTools.ToolBrowser.ExecuteScriptAsyncWhenPageLoaded(File.ReadAllText(script));
+                    if (!isBind)
+                    {
+                        xTools.ToolBrowser.ExecuteScriptAsyncWhenPageLoaded(File.ReadAllText(script));
+                    }
+                };
+                xTools.ToolsViewer.ControlAdded += (s, e) =>
+                {
+                    foreach (TabPage tabPage in xTools.ToolsViewer.TabPages)
+                    {
+                        foreach (var control in tabPage.Controls)
+                        {
+                            if (control is ChromiumWebBrowser browser)
+                            {
+                                browser.ExecuteScriptAsyncWhenPageLoaded(File.ReadAllText(script));
+                                browser.AddressChanged += (_s, _e) =>
+                                {
+                                    browser.ExecuteScriptAsyncWhenPageLoaded(File.ReadAllText(script));
+                                    isBind = true;
+                                };
+                            }
+                        }
+                    }
                 };
                 ToolStripMenuItem jsScript = new ToolStripMenuItem();
                 jsScript.Name = script;
@@ -85,5 +107,7 @@ namespace JSLoader
                 scriptItems.DropDownItems.Add(disabledScript);
             }
         }
+
+        private bool isBind = false;
     }
 }
