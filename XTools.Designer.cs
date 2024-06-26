@@ -109,7 +109,7 @@ namespace XTools
             this.tabPage1.Location = new System.Drawing.Point(4, 25);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(1259, 602);
+            this.tabPage1.Size = new System.Drawing.Size(1259, 597);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "tabPage1";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -122,8 +122,8 @@ namespace XTools
             this.ToolBrowser.Margin = new System.Windows.Forms.Padding(4);
             this.ToolBrowser.MinimumSize = new System.Drawing.Size(27, 25);
             this.ToolBrowser.Name = "ToolBrowser";
-            this.ToolBrowser.Size = new System.Drawing.Size(1253, 596);
-            this.ToolBrowser.TabIndex = 1;
+            this.ToolBrowser.Size = new System.Drawing.Size(1253, 591);
+            this.ToolBrowser.TabIndex = 0;
             this.ToolBrowser.TitleChanged += new System.EventHandler<CefSharp.TitleChangedEventArgs>(this.ToolBrowser_TitleChanged);
             this.ToolBrowser.FrameLoadEnd += new System.EventHandler<CefSharp.FrameLoadEndEventArgs>(this.ToolBrowser_FrameLoadEnd);
             // 
@@ -133,14 +133,14 @@ namespace XTools
             this.ToolsViewer.Location = new System.Drawing.Point(-7, 32);
             this.ToolsViewer.Name = "ToolsViewer";
             this.ToolsViewer.SelectedIndex = 0;
-            this.ToolsViewer.Size = new System.Drawing.Size(1267, 631);
+            this.ToolsViewer.Size = new System.Drawing.Size(1267, 626);
             this.ToolsViewer.TabIndex = 2;
             // 
             // XTools
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1249, 655);
+            this.ClientSize = new System.Drawing.Size(1249, 648);
             this.Controls.Add(this.ToolsViewer);
             this.Controls.Add(this.FunctionsMenu);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));

@@ -82,6 +82,7 @@ namespace XTools
         private void XTools_Resize(object sender, EventArgs e)
         {
             ToolsViewer.Size = Size;
+            ToolsViewer.Height = Height - 70;
         }
 
         private void CloseToolStripMenuItem_Click(object sender, EventArgs e)
@@ -148,7 +149,7 @@ namespace XTools
             NewTool.MinimumSize = new System.Drawing.Size(27, 25);
             NewTool.Name = "ToolBrowser";
             NewTool.Size = new System.Drawing.Size(1253, 596);
-            NewTool.TabIndex = 0;
+            NewTool.TabIndex = 1;
             NewTool.LifeSpanHandler = this;
             NewTool.TitleChanged += new EventHandler<TitleChangedEventArgs>(xTools.ToolBrowser_TitleChanged);
             NewTool.FrameLoadEnd += new EventHandler<FrameLoadEndEventArgs>(xTools.ToolBrowser_FrameLoadEnd);
@@ -160,7 +161,6 @@ namespace XTools
                 }
             };
             NewTool.LoadUrl(targetUrl);
-            // xTools.ToolBrowser.LoadUrl(targetUrl);
             tabPage.Controls.Add(NewTool);
             xTools.Invoke(new MethodInvoker(delegate
             {
