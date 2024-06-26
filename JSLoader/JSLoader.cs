@@ -13,7 +13,7 @@ namespace JSLoader
     {
         public string Name => "JavaScript加载器";
 
-        public string Version => "1.2.4";
+        public string Version => "1.2.5";
 
         public string Author => "XTools开发组";
 
@@ -34,15 +34,16 @@ namespace JSLoader
             {
                 xTools.ToolBrowser.AddressChanged += (s, e) =>
                 {
-                    if (!isBind)
-                    {
-                        xTools.ToolBrowser.ExecuteScriptAsyncWhenPageLoaded(File.ReadAllText(script));
-                    }
+                    xTools.ToolBrowser.ExecuteScriptAsyncWhenPageLoaded(File.ReadAllText(script));
                 };
                 xTools.ToolsViewer.ControlAdded += (s, e) =>
                 {
                     foreach (TabPage tabPage in xTools.ToolsViewer.TabPages)
                     {
+                        if (xTools.ToolsViewer.TabPages.IndexOf(tabPage) == 0)
+                        {
+                            continue;
+                        }
                         foreach (var control in tabPage.Controls)
                         {
                             if (control is ChromiumWebBrowser browser)
@@ -51,7 +52,6 @@ namespace JSLoader
                                 browser.AddressChanged += (_s, _e) =>
                                 {
                                     browser.ExecuteScriptAsyncWhenPageLoaded(File.ReadAllText(script));
-                                    isBind = true;
                                 };
                             }
                         }
@@ -107,7 +107,5 @@ namespace JSLoader
                 scriptItems.DropDownItems.Add(disabledScript);
             }
         }
-
-        private bool isBind = false;
     }
 }
