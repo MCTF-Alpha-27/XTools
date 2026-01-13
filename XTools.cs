@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using CefSharp;
 using System.IO;
 using CefSharp.WinForms;
+using System.Collections.Generic;
 
 namespace XTools
 {
@@ -15,7 +16,6 @@ namespace XTools
         public XTools()
         {
             InitializeComponent();
-            ReloadToolsToolStripMenuItem.Visible = false;
             lifeSpanHandler = new LifeSpanHandler(this);
             ToolBrowser.LifeSpanHandler = lifeSpanHandler;
             LoadTools();
@@ -32,8 +32,7 @@ namespace XTools
                 {
                     ToolStripMenuItem function = new ToolStripMenuItem();
                     function.Name = tool.Replace("tools", "").Remove(0, 1);
-                    function.Text = re_title.Match(File.ReadAllText(tool)).Value
-                        .Replace("<title>", "").Replace("</title>", "");
+                    function.Text = re_title.Match(File.ReadAllText(tool)).Value.Replace("<title>", "").Replace("</title>", "");
                     function.Click += new EventHandler((s, e) =>
                     {
                         string[] split = tool.Split('\\');
@@ -74,9 +73,8 @@ namespace XTools
 
         private void ReloadToolsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // FIXME: 以下语句会导致插件添加的菜单也被移除
-            // ChooseToolToolStripMenuItem.DropDownItems.Clear();
-            // LoadTools();
+            ChooseToolToolStripMenuItem.DropDownItems.Clear();
+            LoadTools();
         }
 
         private void XTools_Resize(object sender, EventArgs e)

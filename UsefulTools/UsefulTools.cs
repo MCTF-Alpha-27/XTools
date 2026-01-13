@@ -7,7 +7,7 @@ namespace UsefulTools
     {
         public string Name => "实用工具";
 
-        public string Version => "1.0.1";
+        public string Version => "1.0.2";
 
         public string Author => "XTools开发组";
 
@@ -30,6 +30,10 @@ namespace UsefulTools
             usefulTools.Name = "UsefulTools";
             usefulTools.Text = Name;
             xTools.ChooseToolToolStripMenuItem.DropDownItems.Add(usefulTools);
+            xTools.ReloadToolsToolStripMenuItem.Click += (s, e) =>
+            {
+                xTools.ChooseToolToolStripMenuItem.DropDownItems.Add(usefulTools);
+            };
 
             AddTool(xTools, usefulTools, "MikuTools", "https://tools.miku.ac");
             AddTool(xTools, usefulTools, "知乎", "https://www.zhihu.com/");

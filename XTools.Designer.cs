@@ -168,6 +168,6 @@ namespace XTools
         public System.Windows.Forms.TabPage tabPage1;
         public ChromiumWebBrowser ToolBrowser;
         public System.Windows.Forms.TabControl ToolsViewer;
-        private System.Windows.Forms.ToolStripMenuItem CloseToolStripMenuItem;
+        public System.Windows.Forms.ToolStripMenuItem CloseToolStripMenuItem;
     }
 }
