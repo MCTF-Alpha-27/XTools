@@ -12,6 +12,7 @@ namespace XTools
     {
         public ILifeSpanHandler lifeSpanHandler;
         public string Title;
+        public LinkedList<string> Histories = new LinkedList<string>();
 
         public XTools()
         {
@@ -102,6 +103,30 @@ namespace XTools
         public void ToolBrowser_FrameLoadEnd(object sender, FrameLoadEndEventArgs e)
         {
             ToolsViewer.SelectedTab.Text = Title;
+            if (Histories.Contains(e.Url) || e.Url == "file:///index.html")
+            {
+                return;
+            }
+            Histories.AddLast(e.Url);
+            if (Histories.Count > 10)
+            {
+                Histories.RemoveFirst();
+                HistoryToolStripMenuItem.DropDownItems.Remove(HistoryToolStripMenuItem.DropDownItems[0]);
+            }
+            ToolStripMenuItem history = new ToolStripMenuItem();
+            history.Name = e.Url;
+            history.Text = Title;
+            history.Click += new EventHandler((_s, _e) =>
+            {
+                foreach (var control in ToolsViewer.SelectedTab.Controls)
+                {
+                    if (control is ChromiumWebBrowser browser)
+                    {
+                        browser.LoadUrl(e.Url);
+                    }
+                }
+            });
+            HistoryToolStripMenuItem.DropDownItems.Add(history);
         }
     }
 

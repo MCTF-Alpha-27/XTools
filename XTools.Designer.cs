@@ -38,6 +38,7 @@ namespace XTools
             this.HomePageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CloseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.PluginsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.HistoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.ToolBrowser = new CefSharp.WinForms.ChromiumWebBrowser();
             this.ToolsViewer = new System.Windows.Forms.TabControl();
@@ -55,7 +56,8 @@ namespace XTools
             this.RefreshToolStripMenuItem,
             this.HomePageToolStripMenuItem,
             this.CloseToolStripMenuItem,
-            this.PluginsToolStripMenuItem});
+            this.PluginsToolStripMenuItem,
+            this.HistoryToolStripMenuItem});
             this.FunctionsMenu.Location = new System.Drawing.Point(0, 0);
             this.FunctionsMenu.Name = "FunctionsMenu";
             this.FunctionsMenu.Padding = new System.Windows.Forms.Padding(8, 2, 0, 2);
@@ -102,6 +104,12 @@ namespace XTools
             this.PluginsToolStripMenuItem.Name = "PluginsToolStripMenuItem";
             this.PluginsToolStripMenuItem.Size = new System.Drawing.Size(56, 25);
             this.PluginsToolStripMenuItem.Text = "插件";
+            // 
+            // HistoryToolStripMenuItem
+            // 
+            this.HistoryToolStripMenuItem.Name = "HistoryToolStripMenuItem";
+            this.HistoryToolStripMenuItem.Size = new System.Drawing.Size(56, 25);
+            this.HistoryToolStripMenuItem.Text = "历史";
             // 
             // tabPage1
             // 
@@ -169,5 +177,6 @@ namespace XTools
         public ChromiumWebBrowser ToolBrowser;
         public System.Windows.Forms.TabControl ToolsViewer;
         public System.Windows.Forms.ToolStripMenuItem CloseToolStripMenuItem;
+        public System.Windows.Forms.ToolStripMenuItem HistoryToolStripMenuItem;
     }
 }

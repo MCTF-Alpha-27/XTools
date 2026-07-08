@@ -12,11 +12,8 @@ namespace JSLoader
     public class JSLoader : IPlugin
     {
         public string Name => "JavaScript加载器";
-
         public string Version => "1.2.5";
-
         public string Author => "XTools开发组";
-
         public string Description => "允许用户使用JavaScript脚本修改网页内容";
 
         public void Main(XTools.XTools xTools)
