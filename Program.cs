@@ -1,9 +1,12 @@
-﻿using System;
+﻿using CefSharp;
+using CefSharp.SchemeHandler;
+using CefSharp.WinForms;
+using Microsoft.VisualBasic.Devices;
+using PluginFrame;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
-using Microsoft.VisualBasic.Devices;
-using PluginFrame;
 
 namespace XTools
 {
