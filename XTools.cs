@@ -22,6 +22,7 @@ namespace XTools
             LoadTools();
             ToolBrowser.LoadUrl("file:///index.html");
         }
+
         public void LoadTools()
         {
             string[] paths = Directory.GetDirectories(Environment.CurrentDirectory + "/tools");
@@ -103,18 +104,31 @@ namespace XTools
         public void ToolBrowser_FrameLoadEnd(object sender, FrameLoadEndEventArgs e)
         {
             ToolsViewer.SelectedTab.Text = Title;
-            if (Histories.Contains(e.Url) || e.Url == "file:///index.html")
+            string finalUrl = null;
+            foreach (var control in ToolsViewer.SelectedTab.Controls)
+            {
+                if (control is ChromiumWebBrowser browser)
+                {
+                    finalUrl = browser.Address;
+                    break;
+                }
+            }
+            if (string.IsNullOrEmpty(finalUrl))
             {
                 return;
             }
-            Histories.AddLast(e.Url);
+            if (Histories.Contains(finalUrl) || finalUrl == "file:///index.html")
+            {
+                return;
+            }
+            Histories.AddLast(finalUrl);
             if (Histories.Count > 10)
             {
                 Histories.RemoveFirst();
                 HistoryToolStripMenuItem.DropDownItems.Remove(HistoryToolStripMenuItem.DropDownItems[0]);
             }
             ToolStripMenuItem history = new ToolStripMenuItem();
-            history.Name = e.Url;
+            history.Name = finalUrl;
             history.Text = Title;
             history.Click += new EventHandler((_s, _e) =>
             {
@@ -122,7 +136,7 @@ namespace XTools
                 {
                     if (control is ChromiumWebBrowser browser)
                     {
-                        browser.LoadUrl(e.Url);
+                        browser.LoadUrl(finalUrl);
                     }
                 }
             });
