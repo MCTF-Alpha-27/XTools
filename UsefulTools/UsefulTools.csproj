@@ -85,4 +85,7 @@
     <Error Condition="!Exists('..\packages\CefSharp.Common.149.0.60\build\CefSharp.Common.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.Common.149.0.60\build\CefSharp.Common.targets'))" />
   </Target>
   <Import Project="..\packages\CefSharp.Common.149.0.60\build\CefSharp.Common.targets" Condition="Exists('..\packages\CefSharp.Common.149.0.60\build\CefSharp.Common.targets')" />
+  <Target Name="SyncPluginToPublish" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(MSBuildProjectDirectory)\..\bin\XTools\plugins" SkipUnchangedFiles="true" />
+  </Target>
 </Project>

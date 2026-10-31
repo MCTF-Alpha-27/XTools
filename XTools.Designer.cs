@@ -41,7 +41,7 @@ namespace XTools
             this.HistoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.ToolBrowser = new CefSharp.WinForms.ChromiumWebBrowser();
-            this.ToolsViewer = new System.Windows.Forms.TabControl();
+            this.ToolsViewer = new ModernTabControl();
             this.FunctionsMenu.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.ToolsViewer.SuspendLayout();
@@ -119,8 +119,8 @@ namespace XTools
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage1.Size = new System.Drawing.Size(1259, 597);
             this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "tabPage1";
-            this.tabPage1.UseVisualStyleBackColor = true;
+            this.tabPage1.Text = "主页";
+            this.tabPage1.UseVisualStyleBackColor = false;
             // 
             // ToolBrowser
             // 
@@ -138,25 +138,28 @@ namespace XTools
             // ToolsViewer
             // 
             this.ToolsViewer.Controls.Add(this.tabPage1);
-            this.ToolsViewer.Location = new System.Drawing.Point(-7, 32);
+            this.ToolsViewer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ToolsViewer.Location = new System.Drawing.Point(0, 41);
             this.ToolsViewer.Name = "ToolsViewer";
             this.ToolsViewer.SelectedIndex = 0;
-            this.ToolsViewer.Size = new System.Drawing.Size(1267, 626);
+            this.ToolsViewer.Size = new System.Drawing.Size(1280, 719);
             this.ToolsViewer.TabIndex = 2;
             // 
             // XTools
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1249, 648);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(19)))), ((int)(((byte)(24)))));
+            this.ClientSize = new System.Drawing.Size(1200, 700);
             this.Controls.Add(this.ToolsViewer);
             this.Controls.Add(this.FunctionsMenu);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.FunctionsMenu;
             this.Margin = new System.Windows.Forms.Padding(4);
+            this.MinimumSize = new System.Drawing.Size(900, 560);
             this.Name = "XTools";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "XTools";
-            this.Resize += new System.EventHandler(this.XTools_Resize);
             this.FunctionsMenu.ResumeLayout(false);
             this.FunctionsMenu.PerformLayout();
             this.tabPage1.ResumeLayout(false);
@@ -175,6 +178,8 @@ namespace XTools
         public System.Windows.Forms.ToolStripMenuItem ReloadToolsToolStripMenuItem;
         public System.Windows.Forms.TabPage tabPage1;
         public ChromiumWebBrowser ToolBrowser;
+        // 保持字段类型为 TabControl，避免旧插件因字段签名变化而无法加载；
+        // 实际实例仍然是 ModernTabControl。
         public System.Windows.Forms.TabControl ToolsViewer;
         public System.Windows.Forms.ToolStripMenuItem CloseToolStripMenuItem;
         public System.Windows.Forms.ToolStripMenuItem HistoryToolStripMenuItem;

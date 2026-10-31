@@ -14,35 +14,69 @@ namespace XTools
         public string Title;
         public LinkedList<string> Histories = new LinkedList<string>();
 
+        public static string HomePageUrl
+        {
+            get { return new Uri(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "index.html")).AbsoluteUri; }
+        }
+
         public XTools()
         {
             InitializeComponent();
+            ApplyTheme();
             lifeSpanHandler = new LifeSpanHandler(this);
             ToolBrowser.LifeSpanHandler = lifeSpanHandler;
             LoadTools();
-            ToolBrowser.LoadUrl("file:///index.html");
+            ToolBrowser.LoadUrl(HomePageUrl);
+        }
+
+        private void ApplyTheme()
+        {
+            BackColor = UITheme.Background;
+            ForeColor = UITheme.Text;
+            Font = UITheme.BodyFont;
+            DoubleBuffered = true;
+
+            UITheme.ApplyMenuTheme(FunctionsMenu);
+            UITheme.EnableDarkTitleBar(this);
+
+            ToolsViewer.BackColor = UITheme.Background;
+            ModernTabControl modernTabs = ToolsViewer as ModernTabControl;
+            if (modernTabs != null)
+            {
+                modernTabs.TabCloseRequested += ToolsViewer_TabCloseRequested;
+            }
+        }
+
+        private void ToolsViewer_TabCloseRequested(object sender, TabCloseRequestedEventArgs e)
+        {
+            CloseTab(e.Page);
         }
 
         public void LoadTools()
         {
-            string[] paths = Directory.GetDirectories(Environment.CurrentDirectory + "/tools");
-            foreach (string path in paths)
+            string toolsRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tools");
+            if (!Directory.Exists(toolsRoot))
+            {
+                return;
+            }
+
+            foreach (string path in Directory.GetDirectories(toolsRoot))
             {
                 string[] tools = Directory.GetFiles(path, "*.html");
                 Regex re_title = new Regex(@"<title>([\s\S]*?)</title>");
                 foreach (string tool in tools)
                 {
                     ToolStripMenuItem function = new ToolStripMenuItem();
-                    function.Name = tool.Replace("tools", "").Remove(0, 1);
+                    function.Name = tool.Substring(toolsRoot.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
                     function.Text = re_title.Match(File.ReadAllText(tool)).Value.Replace("<title>", "").Replace("</title>", "");
                     function.Click += new EventHandler((s, e) =>
                     {
-                        string[] split = tool.Split('\\');
+                        string url = new Uri(tool).AbsoluteUri;
                         foreach (var control in ToolsViewer.SelectedTab.Controls)
                         {
                             if (control is ChromiumWebBrowser browser)
                             {
-                                browser.LoadUrl("file:///tools/" + split[split.Length - 2] + "/" + split[split.Length - 1]);
+                                browser.LoadUrl(url);
                             }
                         }
                     });
@@ -68,7 +102,7 @@ namespace XTools
             {
                 if (control is ChromiumWebBrowser browser)
                 {
-                    browser.LoadUrl("file:///index.html");
+                    browser.LoadUrl(HomePageUrl);
                 }
             }
         }
@@ -79,45 +113,65 @@ namespace XTools
             LoadTools();
         }
 
-        private void XTools_Resize(object sender, EventArgs e)
-        {
-            ToolsViewer.Size = Size;
-            ToolsViewer.Height = Height - 70;
-        }
-
         private void CloseToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (ToolsViewer.SelectedIndex == 0)
+            CloseTab(ToolsViewer.SelectedTab);
+        }
+
+        private void CloseTab(TabPage page)
+        {
+            if (page == null)
+            {
+                return;
+            }
+
+            if (ToolsViewer.TabPages.IndexOf(page) == 0)
             {
                 MessageBox.Show("这是置顶标签页，请不要关闭", "XTools", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            ToolsViewer.TabPages.Remove(ToolsViewer.SelectedTab);
-            ToolsViewer.SelectedIndex = ToolsViewer.TabPages.Count - 1;
+
+            ToolsViewer.TabPages.Remove(page);
+            page.Dispose();
+
+            if (ToolsViewer.TabPages.Count > 0)
+            {
+                ToolsViewer.SelectedIndex = ToolsViewer.TabPages.Count - 1;
+            }
         }
 
         public void ToolBrowser_TitleChanged(object sender, TitleChangedEventArgs e)
         {
             Title = e.Title;
+
+            ChromiumWebBrowser browser = sender as ChromiumWebBrowser;
+            TabPage page = browser == null ? null : browser.Parent as TabPage;
+            if (page != null && !string.IsNullOrWhiteSpace(e.Title))
+            {
+                page.Text = e.Title;
+            }
         }
 
         public void ToolBrowser_FrameLoadEnd(object sender, FrameLoadEndEventArgs e)
         {
-            ToolsViewer.SelectedTab.Text = Title;
-            string finalUrl = null;
-            foreach (var control in ToolsViewer.SelectedTab.Controls)
+            ChromiumWebBrowser browser = sender as ChromiumWebBrowser;
+            if (browser == null)
             {
-                if (control is ChromiumWebBrowser browser)
-                {
-                    finalUrl = browser.Address;
-                    break;
-                }
+                return;
             }
+
+            TabPage page = browser.Parent as TabPage;
+            if (page != null && string.IsNullOrWhiteSpace(page.Text))
+            {
+                page.Text = "新标签页";
+            }
+
+            string finalUrl = browser.Address;
             if (string.IsNullOrEmpty(finalUrl))
             {
                 return;
             }
-            if (Histories.Contains(finalUrl) || finalUrl == "file:///index.html")
+            if (Histories.Contains(finalUrl) || string.Equals(finalUrl, HomePageUrl, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
@@ -134,9 +188,9 @@ namespace XTools
             {
                 foreach (var control in ToolsViewer.SelectedTab.Controls)
                 {
-                    if (control is ChromiumWebBrowser browser)
+                    if (control is ChromiumWebBrowser tabBrowser)
                     {
-                        browser.LoadUrl(finalUrl);
+                        tabBrowser.LoadUrl(finalUrl);
                     }
                 }
             });
@@ -177,32 +231,32 @@ namespace XTools
                 return false;
             }
             isInternalNavigation = true;
-            TabPage tabPage = new TabPage(targetUrl);
-            ChromiumWebBrowser NewTool = new ChromiumWebBrowser();
-            NewTool.ActivateBrowserOnCreation = false;
-            NewTool.Dock = DockStyle.Fill;
-            NewTool.Location = new System.Drawing.Point(3, 3);
-            NewTool.Margin = new Padding(4);
-            NewTool.MinimumSize = new System.Drawing.Size(27, 25);
-            NewTool.Name = "ToolBrowser";
-            NewTool.Size = new System.Drawing.Size(1253, 596);
-            NewTool.TabIndex = 1;
-            NewTool.LifeSpanHandler = this;
-            NewTool.TitleChanged += new EventHandler<TitleChangedEventArgs>(xTools.ToolBrowser_TitleChanged);
-            NewTool.FrameLoadEnd += new EventHandler<FrameLoadEndEventArgs>(xTools.ToolBrowser_FrameLoadEnd);
-            NewTool.FrameLoadEnd += (sender, e) =>
-            {
-                if (e.Frame.IsMain)
-                {
-                    isInternalNavigation = false;
-                }
-            };
-            NewTool.LoadUrl(targetUrl);
-            tabPage.Controls.Add(NewTool);
             xTools.Invoke(new MethodInvoker(delegate
             {
+                TabPage tabPage = new TabPage("加载中...");
+                ChromiumWebBrowser newTool = new ChromiumWebBrowser();
+                newTool.ActivateBrowserOnCreation = false;
+                newTool.Dock = DockStyle.Fill;
+                newTool.Location = new System.Drawing.Point(3, 3);
+                newTool.Margin = new Padding(4);
+                newTool.MinimumSize = new System.Drawing.Size(27, 25);
+                newTool.Name = "ToolBrowser";
+                newTool.Size = new System.Drawing.Size(1253, 596);
+                newTool.TabIndex = 1;
+                newTool.LifeSpanHandler = this;
+                newTool.TitleChanged += xTools.ToolBrowser_TitleChanged;
+                newTool.FrameLoadEnd += xTools.ToolBrowser_FrameLoadEnd;
+                newTool.FrameLoadEnd += (sender, e) =>
+                {
+                    if (e.Frame.IsMain)
+                    {
+                        isInternalNavigation = false;
+                    }
+                };
+                tabPage.Controls.Add(newTool);
                 xTools.ToolsViewer.Controls.Add(tabPage);
                 xTools.ToolsViewer.SelectedIndex = xTools.ToolsViewer.TabPages.Count - 1;
+                newTool.LoadUrl(targetUrl);
             }));
             return true;
         }

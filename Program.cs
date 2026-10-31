@@ -18,12 +18,22 @@ namespace XTools
         [STAThread]
         static void Main()
         {
+            // 统一工作目录，兼容仍使用相对路径（scripts、tools 等）的旧插件。
+            Environment.CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             XTools xTools = new XTools();
             try
             {
-                string[] pluginFiles = Directory.GetFiles("plugins", "*.dll");
+                // 以程序所在目录为准，避免从快捷方式或其它工作目录启动时找不到插件。
+                string pluginDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins");
+                if (!Directory.Exists(pluginDirectory))
+                {
+                    Directory.CreateDirectory(pluginDirectory);
+                }
+
+                string[] pluginFiles = Directory.GetFiles(pluginDirectory, "*.dll");
                 foreach (string pluginFile in pluginFiles)
                 {
                     Assembly assembly = Assembly.LoadFrom(pluginFile);
@@ -53,9 +63,10 @@ namespace XTools
                             disablePlugin.Name = type.Name;
                             disablePlugin.Text = "禁用此插件";
                             Computer computer = new Computer();
+                            string pluginFileName = Path.GetFileName(pluginFile);
                             disablePlugin.Click += new EventHandler((sender, e) =>
                             {
-                                computer.FileSystem.RenameFile(pluginFile, pluginFile.Split('\\')[1] + ".disabled");
+                                computer.FileSystem.RenameFile(pluginFile, pluginFileName + ".disabled");
                                 MessageBox.Show("已禁用此插件，重启后生效", "需要重启",
                                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                             });
@@ -66,19 +77,20 @@ namespace XTools
                         }
                     }
                 }
-                string[] disabledPluginFiles = Directory.GetFiles("plugins", "*.disabled");
+                string[] disabledPluginFiles = Directory.GetFiles(pluginDirectory, "*.disabled");
                 foreach (string disabledPluginFile in disabledPluginFiles)
                 {
+                    string disabledFileName = Path.GetFileName(disabledPluginFile);
                     ToolStripMenuItem disabledPlugin = new ToolStripMenuItem();
                     disabledPlugin.Name = disabledPluginFile;
-                    disabledPlugin.Text = disabledPluginFile.Split('\\')[1].Replace(".disabled", "") + "（已禁用）";
+                    disabledPlugin.Text = disabledFileName.Replace(".disabled", "") + "（已禁用）";
                     ToolStripMenuItem enablePlugin = new ToolStripMenuItem();
                     enablePlugin.Name = disabledPluginFile;
                     enablePlugin.Text = "启用此插件";
                     Computer computer = new Computer();
                     enablePlugin.Click += new EventHandler((sender, e) =>
                     {
-                        computer.FileSystem.RenameFile(disabledPluginFile, disabledPluginFile.Split('\\')[1].Replace(".disabled", ""));
+                        computer.FileSystem.RenameFile(disabledPluginFile, disabledFileName.Replace(".disabled", ""));
                         MessageBox.Show("已启用此插件，重启后生效", "需要重启",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                     });

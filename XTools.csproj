@@ -96,6 +96,8 @@
     <Compile Include="XTools.Designer.cs">
       <DependentUpon>XTools.cs</DependentUpon>
     </Compile>
+    <Compile Include="ModernTabControl.cs" />
+    <Compile Include="UITheme.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="XTools.resx">
@@ -126,6 +128,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Xtools.ico" />
+    <Content Include="index.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="log.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="site.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -140,4 +151,40 @@
     <Error Condition="!Exists('packages\CefSharp.Common.149.0.60\build\CefSharp.Common.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\CefSharp.Common.149.0.60\build\CefSharp.Common.targets'))" />
   </Target>
   <Import Project="packages\CefSharp.Common.149.0.60\build\CefSharp.Common.targets" Condition="Exists('packages\CefSharp.Common.149.0.60\build\CefSharp.Common.targets')" />
+
+  <!-- 构建完成后，只把运行时必需的文件同步到最终发布目录 bin\XTools。 -->
+  <Target Name="SyncPublishFolder" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <PropertyGroup>
+      <XToolsPublishDir>$(TargetDir)..\XTools\</XToolsPublishDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <PublishRoot Include="$(TargetDir)XTools.exe" />
+      <PublishRoot Include="$(TargetDir)XTools.exe.config" />
+      <PublishRoot Include="$(TargetDir)PluginFrame.dll" />
+      <PublishRoot Include="$(TargetDir)CefSharp*.dll" />
+      <PublishRoot Include="$(TargetDir)CefSharp.BrowserSubprocess.exe" />
+      <PublishRoot Include="$(TargetDir)chrome_100_percent.pak" />
+      <PublishRoot Include="$(TargetDir)chrome_200_percent.pak" />
+      <PublishRoot Include="$(TargetDir)chrome_elf.dll" />
+      <PublishRoot Include="$(TargetDir)d3dcompiler_47.dll" />
+      <PublishRoot Include="$(TargetDir)dxcompiler.dll" />
+      <PublishRoot Include="$(TargetDir)dxil.dll" />
+      <PublishRoot Include="$(TargetDir)icudtl.dat" />
+      <PublishRoot Include="$(TargetDir)libcef.dll" />
+      <PublishRoot Include="$(TargetDir)libEGL.dll" />
+      <PublishRoot Include="$(TargetDir)libGLESv2.dll" />
+      <PublishRoot Include="$(TargetDir)resources.pak" />
+      <PublishRoot Include="$(TargetDir)snapshot_blob.bin" />
+      <PublishRoot Include="$(TargetDir)v8_context_snapshot.bin" />
+      <PublishRoot Include="$(TargetDir)vk_swiftshader.dll" />
+      <PublishRoot Include="$(TargetDir)vk_swiftshader_icd.json" />
+      <PublishRoot Include="$(TargetDir)vulkan-1.dll" />
+      <PublishRoot Include="$(TargetDir)index.html" />
+      <PublishRoot Include="$(TargetDir)log.html" />
+      <PublishRoot Include="$(TargetDir)site.css" />
+      <PublishLocales Include="$(TargetDir)locales\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(PublishRoot)" DestinationFolder="$(XToolsPublishDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(PublishLocales)" DestinationFolder="$(XToolsPublishDir)locales\%(RecursiveDir)" SkipUnchangedFiles="true" />
+  </Target>
 </Project>
